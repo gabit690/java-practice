@@ -1,7 +1,5 @@
 package graphics;
 
-import javax.imageio.ImageIO;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
@@ -18,9 +16,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-import java.io.File;
-import java.io.IOException;
 
 public class PanelEvents {
 
@@ -70,8 +65,6 @@ class FrameInteractive extends JFrame {
 
 class MainCape extends JPanel {
 
-    private Image _img;
-
     private  JLabel _imageLabel = new JLabel(new ImageIcon("src/graphics/img/sadCat.png"));
 
     private JLabel _textLabel = new JLabel("Are cats astonishing?");
@@ -95,13 +88,6 @@ class MainCape extends JPanel {
         this._affirmativeButton.setBounds(150, 275, 100 , 50);
 
         this._negativeButton.setBounds(450, 275, 100 , 50);
-
-        try {
-            this._img = ImageIO.read(new File("src/graphics/img/sadCat.png"));
-        } catch (IOException e) {
-
-            System.out.println("Image no found");
-        }
 
         Background backgroundAffirmative = new Background(Color.GREEN);
 
