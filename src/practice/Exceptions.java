@@ -37,7 +37,7 @@ public class Exceptions {
 
 class EmptyStringException extends Exception {
 
-    public EmptyStringException() {};
+    public EmptyStringException() {}
 
     public EmptyStringException(String message) {
 
