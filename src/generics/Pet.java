@@ -1,5 +1,7 @@
 package generics;
 
+import java.util.Objects;
+
 public abstract class Pet {
 
     private AnimalSpecie _specie;
@@ -27,5 +29,24 @@ public abstract class Pet {
 
     public String getName() {
         return this._name;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this._name) + Objects.hashCode(this.getSpecie());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Pet p = (Pet) obj;
+        return this._name.equals(p.getName()) && this._specie.equals(p.getSpecie());
+    }
+
+    @Override
+    public String toString() {
+        return "Pet{" +
+                "_specie=" + _specie +
+                ", _name='" + _name + '\'' +
+                '}';
     }
 }
