@@ -4,51 +4,127 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 class BouncePanel extends JPanel implements ActionListener {
 
-    private int width;
+    private Dimension size;
 
-    private int height;
+    private List<Ball> balls = new ArrayList<>();
 
-    private Ellipse2D ball;
+    private boolean concurrent;
 
-    private int ballSize;
+    public BouncePanel(int width, int height, boolean concurrent) {
 
-    public BouncePanel(int width, int height) {
-        this.width = width;
-        this.height = height;
+        this.size = new Dimension(width, height);
 
-        Random random = new Random();
-
-        int randomX = random.nextInt(this.width + 1);
-
-        int randomY = random.nextInt(this.height + 1);
-
-        this.ballSize = 10;
-
-        this.ball = new Ellipse2D.Double(randomX - ballSize, randomY - ballSize, ballSize, ballSize);
-
+        this.concurrent = concurrent;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
-        setBackground(Color.GREEN);
+        if(this.balls.size() < 10) {
+            this.startAnimation();
+        } else {
+            System.out.println("LIST FULL");
+        }
 
-        this.ball = new Ellipse2D.Double(this.ball.getX() - this.ballSize, this.ball.getY() - this.ballSize, this.ballSize, this.ballSize);
 
-        repaint();
     }
 
     @Override
     public void paint(Graphics g) {
         super.paint(g);
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setColor(Color.WHITE);
-        g2.fill(ball);
-        g2.draw(ball);
+//        super.paintComponent(g);
+
+        Graphics2D g2=(Graphics2D)g;
+
+        for(Ball b: balls){
+            g2.setColor(b.isActive() ? Color.GREEN : Color.RED);
+            g2.fill(b.getShape());
+        }
+    }
+
+    public void add(Ball ball) {
+        this.balls.add(ball);
+    }
+
+    private void startAnimation() {
+
+        Random random = new Random();
+
+        int sizeBall = 10;
+
+        Point maxPosition = new Point(
+                (int) this.size.getWidth() - sizeBall,
+                (int) this.size.getHeight() - sizeBall
+        );
+
+        Point randomPosition = new Point(
+                random.nextInt((int) maxPosition.getX() - 1) + 1,
+                random.nextInt((int) maxPosition.getY() - 1) + 1
+        );
+
+        Ball ball = new Ball(
+                sizeBall,
+                new Point((int) randomPosition.getX(), (int) randomPosition.getY()),
+                new Point((int) maxPosition.getX(), (int) maxPosition.getY()),
+                3);
+
+        this.add(ball);
+
+        if (this.concurrent) {
+
+            Runnable r = new AnimationConcurrent(this, ball);
+
+            Thread t = new Thread(r);
+
+            t.start();
+
+        } else {
+
+            while (ball.isActive()) {
+                ball.move();
+                this.paint(this.getGraphics());
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
+        }
+    }
+}
+
+class AnimationConcurrent implements Runnable {
+
+    private BouncePanel panel;
+
+    private Ball ball;
+
+    public AnimationConcurrent(BouncePanel panel, Ball ball) {
+
+        this.panel = panel;
+
+        this.ball = ball;
+    }
+
+    @Override
+    public void run() {
+
+        while (ball.isActive()) {
+            ball.move();
+            this.panel.paint(this.panel.getGraphics());
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
     }
 }

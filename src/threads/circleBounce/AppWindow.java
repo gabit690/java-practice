@@ -16,7 +16,7 @@ public class AppWindow extends JFrame {
         this.icon = icon;
         this.width = width;
         this.height = height;
-        this.mainLayer = new MainLayer(this.width, this.height);
+        this.mainLayer = new MainLayer(width, height);
         this.configFrame();
     }
 
