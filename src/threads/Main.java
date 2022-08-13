@@ -1,72 +1,74 @@
 package threads;
 
-import java.util.Date;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
 
-        String message = "Threads practice";
+        Bank santander = new Bank();
 
-        int messageLength = message.length();
+        for (int count = 0; count < 10; count++) {
 
-        for (int index = 0; index < messageLength; index++) {
-            System.out.print(message.charAt(index));
-            Thread.sleep(250);
+            Transaction t = new Transaction(santander, count);
+
+            t.start();
         }
-
-        System.out.println();
-
-        DisplayClock clock1 = new DisplayClock("thread-2", 1000);
-
-        Thread threadSecondary = new Thread(clock1);
-
-        threadSecondary.start();
-
-        Thread.sleep(8000);
-
-        System.out.println("***** END *****");
-
     }
 
 }
 
-class DisplayClock implements Runnable {
+class Bank {
 
-    private String _id;
+    private double[] counts = new double[10];
 
-    private int _delay;
+    Lock lock = new ReentrantLock();
 
-    public DisplayClock(String id, int delay) {
-        this._id = id;
-        this._delay = delay;
+    public Bank() {
+        for(int index = 0; index < 10; index++) {
+            counts[index] = 20000.00;
+        }
     }
 
-    public void setDelay(int delay) {
-        this._delay = delay;
+    public void transfer(int from, int to, double amount) {
+        lock.lock();
+        counts[from]-=amount;
+        counts[to]+=amount;
+        System.out.println("Thread-" + Thread.currentThread().getName() + " Count" + from + " To Count" + to + " Amount " + amount + "Total Bank $" + getTotal());
+        lock.unlock();
     }
 
-    public int getDelay() {
-        return this._delay;
+    public Double getTotal() {
+        double total = 0;
+        for (Double money: counts) {
+            total += money;
+        }
+        return total;
     }
+}
 
-    public String get_id() {
-        return _id;
-    }
+class Transaction extends Thread {
 
-    public void set_id(String _id) {
-        this._id = _id;
+    private Bank source;
+
+    private int count;
+
+    public Transaction(Bank bank, int count) {
+
+        this.source = bank;
+
+        this.count = count;
     }
 
     @Override
     public void run() {
-        for (int repetition = 1; repetition <= 5; repetition++) {
-            try {
-                Thread.sleep(this._delay);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println("[ " + this._id.toUpperCase() + " ]" + new Date());
+
+        while (true){
+
+            int to = (int) (Math.random() * 10);
+            double money = (int) (Math.random() * 1000) + 1;
+            source.transfer(count, to, money);
         }
     }
 }
