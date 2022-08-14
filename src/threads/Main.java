@@ -1,84 +1,130 @@
 package threads;
 
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
 
-        Bank santander = new Bank();
+        JFrame app = new JFrame("Actions");
 
+        Layer cape = new Layer();
+        app.add(cape);
+        app.pack();
 
-        for (int count = 0; count < 10; count++) {
-
-            Transaction t = new Transaction(santander, count);
-
-            t.start();
-        }
-    }
-
-}
-
-class Bank {
-
-    private double[] counts = new double[10];
-
-
-    public Bank() {
-        for(int index = 0; index < 10; index++) {
-            counts[index] = 20000.00;
-        }
-    }
-
-    public synchronized void transfer(int from, int to, double amount) throws InterruptedException {
-
-        while (counts[from] < amount) {
-
-            wait();
-        }
-        counts[from]-=amount;
-        counts[to]+=amount;
-        System.out.println("Thread-" + Thread.currentThread().getName() + " Count" + from + " To Count" + to + " Amount " + amount + "Total Bank $" + getTotal());
-        notifyAll();
-
-    }
-
-    public Double getTotal() {
-        double total = 0;
-        for (Double money: counts) {
-            total += money;
-        }
-        return total;
+        app.setLocationRelativeTo(null);
+        app.setResizable(false);
+        app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        app.setVisible(true);
     }
 }
 
-class Transaction extends Thread {
+class Layer extends JPanel {
 
-    private Bank source;
+    private AppStatus status;
 
-    private int count;
+    private Action action;
 
-    public Transaction(Bank bank, int count) {
+    private JButton play;
 
-        this.source = bank;
+    private JButton pause;
 
-        this.count = count;
+    private JButton stop;
+
+    public Layer() {
+        this.status = AppStatus.STOPPED;
+        this.action = new Action();
+        this.play = new JButton("PLAY");
+        this.pause = new JButton("PAUSE");
+        this.stop = new JButton("STOP");
+        this.onInit();
     }
+
+    public void onInit() {
+
+        this.play.setSize(100, 50);
+        this.pause.setSize(100, 50);
+        this.stop.setSize(100, 50);
+        this.play.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (status == AppStatus.PLAYED) {
+                    System.out.println("Don't replay");
+                    return;
+                }
+
+                if (status == AppStatus.PAUSED) {
+                    action = new Action();
+                    System.out.println("continue");
+                } else {
+                    System.out.println("Start");
+                }
+
+                action.start();
+                status = AppStatus.PLAYED;
+
+            }
+        });
+
+        this.pause.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (status != AppStatus.PLAYED) {
+                    System.out.println("It isn't PLAYED");
+                    return;
+                }
+
+                status = AppStatus.PAUSED;
+                action.interrupt();
+            }
+        });
+
+        this.stop.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (status == AppStatus.STOPPED) {
+                    System.out.println("Don't reSTOP");
+                    return;
+                }
+
+                if (status == AppStatus.PLAYED) {
+                    action.interrupt();
+                }
+
+                action = new Action();
+                status = AppStatus.STOPPED;
+            }
+        });
+
+        add(this.play);
+        add(this.pause);
+        add(this.stop);
+    }
+}
+
+enum AppStatus {
+    PLAYED, PAUSED, STOPPED
+}
+
+class Action extends Thread {
 
     @Override
     public void run() {
 
-        while (true){
-
-            int to = (int) (Math.random() * 10);
-            double money = (int) (Math.random() * 1000) + 1;
-
+        while (!this.isInterrupted()) {
+            System.out.println((LocalTime.now()));
             try {
-                source.transfer(count, to, money);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                Thread.currentThread().interrupt();
             }
         }
     }
