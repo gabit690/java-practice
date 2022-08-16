@@ -1,19 +1,24 @@
 package threads;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 
-public class Main {
+public class Client {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args)  {
 
-        JFrame app = new JFrame("Actions");
+        JFrame app = new JFrame("Client");
 
-        Layer cape = new Layer();
+        Layer cape = null;
+        try {
+            cape = new Layer();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         app.add(cape);
         app.pack();
 
@@ -28,17 +33,14 @@ class Layer extends JPanel {
 
     private AppStatus status;
 
-    private Action action;
-
     private JButton play;
 
     private JButton pause;
 
     private JButton stop;
 
-    public Layer() {
+    public Layer() throws IOException {
         this.status = AppStatus.STOPPED;
-        this.action = new Action();
         this.play = new JButton("PLAY");
         this.pause = new JButton("PAUSE");
         this.stop = new JButton("STOP");
@@ -60,13 +62,19 @@ class Layer extends JPanel {
                 }
 
                 if (status == AppStatus.PAUSED) {
-                    action = new Action();
                     System.out.println("continue");
                 } else {
                     System.out.println("Start");
                 }
 
-                action.start();
+                try {
+                    Socket bridge = new Socket("192.168.1.103", 8081);
+                    DataOutputStream output = new DataOutputStream(bridge.getOutputStream());
+                    output.writeUTF(AppStatus.PLAYED.toString());
+                    output.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
                 status = AppStatus.PLAYED;
 
             }
@@ -81,8 +89,15 @@ class Layer extends JPanel {
                     return;
                 }
 
+                try {
+                    Socket bridge = new Socket("192.168.1.103", 8081);
+                    DataOutputStream output = new DataOutputStream(bridge.getOutputStream());
+                    output.writeUTF(AppStatus.PAUSED.toString());
+                    output.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
                 status = AppStatus.PAUSED;
-                action.interrupt();
             }
         });
 
@@ -95,11 +110,15 @@ class Layer extends JPanel {
                     return;
                 }
 
-                if (status == AppStatus.PLAYED) {
-                    action.interrupt();
+                try {
+                    Socket bridge = new Socket("192.168.1.103", 8081);
+                    DataOutputStream output = new DataOutputStream(bridge.getOutputStream());
+                    output.writeUTF(AppStatus.STOPPED.toString());
+                    output.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
                 }
 
-                action = new Action();
                 status = AppStatus.STOPPED;
             }
         });
@@ -112,20 +131,4 @@ class Layer extends JPanel {
 
 enum AppStatus {
     PLAYED, PAUSED, STOPPED
-}
-
-class Action extends Thread {
-
-    @Override
-    public void run() {
-
-        while (!this.isInterrupted()) {
-            System.out.println((LocalTime.now()));
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
 }
