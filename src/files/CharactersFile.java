@@ -6,7 +6,7 @@ public class CharactersFile {
 
     public static void main(String[] args) {
 
-        printContent("src/files/test.txt");
+        printContent("src/files/new.txt");
 
         appendContent("src/files/new.txt", "One Line");
     }
