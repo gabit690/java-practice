@@ -1,4 +1,7 @@
-package threads.chat.client;
+package threads.chat;
+
+import threads.chat.client.ChatDisplay;
+import threads.chat.client.InputField;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -37,40 +40,5 @@ public class Message extends JPanel {
                 ", content='" + content + '\'' +
                 ", isEmitter=" + isEmitter +
                 '}';
-    }
-}
-
-class MessageSent implements ActionListener {
-
-    private ChatDisplay panel;
-
-    private InputField input;
-
-    private JScrollPane scroll;
-
-    public MessageSent(ChatDisplay panel, InputField input, JScrollPane scroll) {
-        this.panel = panel;
-        this.input = input;
-        this.scroll = scroll;
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (input.getForeground() == Color.LIGHT_GRAY) {
-            System.out.println("NONE");
-        }
-        if (input.getForeground() == Color.BLACK) {
-            panel.addNewMessage(new Message("Me", input.getText(), true));
-
-            panel.revalidate();
-            input.reset();
-            panel.repaint();
-
-            scroll.validate();
-            scroll.repaint();
-            JScrollBar vertical = scroll.getVerticalScrollBar();
-            vertical.setValue( vertical.getMaximum() );
-            // TODO: Repaint Chat panel
-        }
     }
 }

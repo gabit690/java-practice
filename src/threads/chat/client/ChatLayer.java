@@ -3,8 +3,6 @@ package threads.chat.client;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.LinkedList;
 
 public class ChatLayer extends JPanel {
 
@@ -44,7 +42,6 @@ public class ChatLayer extends JPanel {
         controls.add(message);
 
 
-
         JButton send = new JButton("Send") {
             @Override
             public void doLayout() {
@@ -52,7 +49,7 @@ public class ChatLayer extends JPanel {
                 this.requestFocusInWindow();
             }
         };
-        send.addActionListener(new MessageSent(screen, message, scroll));
+        send.addActionListener(new ClientSendMessage(screen, message, scroll));
 
         controls.setOpaque(false);
         controls.add(send);
@@ -64,14 +61,5 @@ public class ChatLayer extends JPanel {
         return new Dimension(this.width, this.height);
     }
 
-    // Inner classes of main layer
-    class Header extends JLabel {
-
-        public Header(String text, int horizontalAlignment) {
-            super(text, horizontalAlignment);
-            this.setBorder(new EmptyBorder(10, 0, 0, 0));
-            this.setFont(new Font("Arial", Font.BOLD, 20));
-        }
-    }
 }
 

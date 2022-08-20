@@ -1,15 +1,15 @@
 package threads.chat.client;
 
+import threads.chat.Message;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.LinkedList;
 
-public class ChatDisplay extends JPanel implements ActionListener {
+public class ChatDisplay extends JPanel{
 
-    public LinkedList<Message> messages = new LinkedList<>();
+    private LinkedList<Message> messages = new LinkedList<>();
 
     public ChatDisplay() {
         this.setBackground(new Color(227, 252, 191));
@@ -28,8 +28,4 @@ public class ChatDisplay extends JPanel implements ActionListener {
         this.add(message);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-
-    }
 }
