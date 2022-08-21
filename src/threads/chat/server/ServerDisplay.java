@@ -11,26 +11,16 @@ public class ServerDisplay extends JPanel {
 
     public ServerDisplay() {
         this.setBackground(Color.BLACK);
-        this.setBorder(new EmptyBorder(0, 0, 0, 0));
+        this.setBorder(new EmptyBorder(10, 0, 10, 0));
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.setBorder(new EmptyBorder(0, 0, 0, 0));
-
-
-        for (int message = 1; message <= 12; message++) {
-            JLabel m = new JLabel("MESSAGE --> MESSAGE");
-            m.setOpaque(false);
-            m.setForeground(Color.GREEN);
-            m.setBorder(new EmptyBorder(10, 20, 0, 0));
-            this.add(m);
-        }
 
     }
 
     public void addNewMessage(JLabel message) {
         this.messages.add(message);
+        message.setOpaque(false);
+        message.setForeground(Color.GREEN);
+        message.setBorder(new EmptyBorder(10, 20, 0, 0));
         this.add(message);
     }
-
-
-
 }
